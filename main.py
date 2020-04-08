@@ -1,6 +1,4 @@
 # Data Handling
-import logging
-from logging.handlers import RotatingFileHandler
 import pickle
 import numpy as np
 from pydantic import BaseModel
@@ -8,24 +6,12 @@ from pydantic import BaseModel
 # Server
 import uvicorn
 from fastapi import FastAPI
-from fastapi.logger import logger as fastapi_logger
 
 # Modeling
 import funcs
 import sklearn
 
 app = FastAPI()
-
-# Initialize logging
-formatter = logging.Formatter(
-        "[%(asctime)s.%(msecs)03d] %(levelname)s [%(thread)d] - %(message)s", "%Y-%m-%d %H:%M:%S")
-handler = RotatingFileHandler('log/test.log', backupCount=0)
-logging.getLogger().setLevel(logging.DEBUG)
-fastapi_logger.addHandler(handler)
-handler.setFormatter(formatter)
-# my_logger = logging.getLogger()
-# my_logger.setLevel(logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
 lr = pickle.load(open('data/model.pickle', 'rb'))
@@ -80,7 +66,6 @@ def predict(data: Data):
         # Create and return prediction
         prob = lr.predict_proba(X.reshape(1, -1))
 
-        fastapi_logger.info("Score produced for " + app_id)
         return {"prediction": {'prob': prob[0, 1]}}
 
     except:
@@ -89,10 +74,10 @@ def predict(data: Data):
 
 @app.get("/")
 def welcome():
-    return {"message":"Welcome to EC-fastapi-pipeline"}
+    return {"message": "Welcome to EC-fastapi-pipeline"}
 
 
-if __name__ == '__main__':
-
-    fastapi_logger.info('****************** Starting Server *****************')
-    uvicorn.run(app)
+# if __name__ == '__main__':
+#
+#    fastapi_logger.info('****************** Starting Server *****************')
+#    uvicorn.run(app)
